@@ -57,11 +57,3 @@ class PriceChanges(Base):
     price            = Column(Float(precision=32, decimal_return_scale=None))
     nasdaq           = relationship("NasdaqStocks", back_populates="price_changes")
 
-
-class Todos(Base):
-    __tablename__  = "todos"
-    id             = Column(Integer, primary_key=True, index=True)
-    title          = Column(String)
-    description    = Column(String)
-    priority       = Column(Integer)
-    complete       = Column(Boolean, default=False)

@@ -5,17 +5,12 @@ from utils.database import engine
 from routers import auth, users, trading
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
-from fastapi import Depends, HTTPException, status, Request
+from fastapi import Depends, status, Request
 from starlette.responses import JSONResponse
 
 
-#Static missing for launching templates
-# https://fastapi.tiangolo.com/tutorial/metadata/
 description = """
-    Requirements:
-    This is necesary blab 
-
-    Token expires every 20 minutes
+    Working on documentation...
     """
 
 models.Base.metadata.create_all(bind=engine)
@@ -30,20 +25,10 @@ app = FastAPI(
     version="1.0",
     contact={
         "name": "Miguel Jesús Torres Cárdenas",
-        "GitHub": "https://www.google.com",
+        "GitHub": "https://github.com/mtc051290/VestTestApp",
         "email": "mtc590@gmail.com",
     }
 )
 
-@app.exception_handler(BadRequestData)
-async def negative_number_exception_handler(request: Request,
-                                            exception: BadRequestData):
-    return JSONResponse(
-        status_code=400,
-        content={"message": f"Hey, why do you want {exception.books_to_return} "
-                            f"books? You need to read more!"}
-    )
-
-#app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(trading.router)
