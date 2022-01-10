@@ -1,5 +1,4 @@
 import sys
-
 from sqlalchemy.sql.expression import false
 sys.path.append("..")
 from sqlalchemy import Boolean,Column,Integer,String, ForeignKey
