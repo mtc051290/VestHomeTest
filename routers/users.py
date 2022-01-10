@@ -25,11 +25,6 @@ from controllers.auth import SECRET_KEY, ALGORITHM
 
 
 
-templates=Jinja2Templates(directory="templates")
-
-
-
-
 
 
 # This creates all the tables and columns
@@ -47,20 +42,6 @@ router = APIRouter(
         }
     }
 )
-
-class LoginForm:
-    def __init__(self, request: Request):
-        self.request: Request=request
-        self.username: Optional[str] = None
-        self.password: Optional[str] = None
-
-    async def create_oauth_form(self):
-        form = await self.request.form()
-        self.username=form.get("email")
-        self.password=form.get("password")
-
-
-
 
 
 
@@ -115,7 +96,7 @@ async def create_new_user(create_user: users.CreateUser,db: Session=Depends(get_
 
 
 
-#eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJzdHJpbmciLCJpZCI6MTMsImV4cCI6MTY0Nzc1NTIxNH0.9u2KCjbiG4xYlme2dIabBLDYOJO3UTdnJWI5IC3iNrE
+#eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtdGM1OTAiLCJpZCI6MTQsImV4cCI6MTY0Nzg1NDQxM30.GTobMEQn1rSDNGQHccai2nE7aHZfblJ8LK66YHV5OrA
 @router.post("/token")
 async def login_for_access_token(user_to_login: users.LoginTokenUser,
                                 db: Session = Depends(get_db)):

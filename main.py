@@ -7,6 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import PlainTextResponse
 from fastapi import Depends, HTTPException, status, Request
 from starlette.responses import JSONResponse
+from fastapi.openapi.utils import get_openapi
 
 
 
@@ -20,6 +21,8 @@ class BadRequestData(Exception):
     def __init__(self, books_to_return):
         self.books_to_return = books_to_return
 
+
+"""
 app = FastAPI(
     title="Vest | Backend Engineer - Take Home Test",
     description=description,
@@ -30,7 +33,10 @@ app = FastAPI(
         "email": "mtc590@gmail.com",
     }
 )
+"""
+app = FastAPI()
 
+"""
 @app.exception_handler(BadRequestData)
 async def negative_number_exception_handler(request: Request,
                                             exception: BadRequestData):
@@ -39,6 +45,26 @@ async def negative_number_exception_handler(request: Request,
         content={"message": f"Bad Request"}
     )
 
-
+"""
 app.include_router(users.router)
 app.include_router(trading.router)
+
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="Vest | Backend Engineer - Take Home Test",
+        version="1.1",
+        description="Making changes for Open Market hours",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
