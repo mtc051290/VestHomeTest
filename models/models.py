@@ -1,13 +1,13 @@
 import sys
-from sqlalchemy.sql.expression import false
 sys.path.append("..")
-from sqlalchemy import Boolean,Column,Integer,String, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean,Column,Integer,String, ForeignKey, Sequence
 from sqlalchemy.sql.sqltypes import DateTime, Float
+from sqlalchemy.orm import relationship
 from utils.database import Base
 
 
 class VestUsers(Base):
+    # User table
     __tablename__   = "vest_users"
     id              = Column(Integer, primary_key=True)
     email           = Column(String, unique=True, index=True)
@@ -20,6 +20,7 @@ class VestUsers(Base):
 
 
 class UserStocks(Base):
+    # Stocks with shares held by users
     __tablename__    = "user_stocks"
     id               = Column(Integer, primary_key=True, index=True, autoincrement=True)
     owner_id         = Column(Integer, ForeignKey("vest_users.id"))
@@ -35,6 +36,7 @@ class UserStocks(Base):
 
 
 class NasdaqStocks(Base): 
+    # Nasdaq stocks and summary
     __tablename__      = "nasdaq_stocks"
     id                 = Column(Integer, primary_key=True)
     symbol             = Column(String, unique=True, index=True)

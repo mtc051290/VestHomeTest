@@ -217,11 +217,10 @@ async def sell_shares( sell_shares   : SellShares,
             print("vender")
             count += 1
 
-    """user_stocks.shares = json.dumps(shares.reverse())
+    shares.reverse()
+    user_stocks.shares = json.dumps(shares)
     db.add(user_stocks)
     db.commit()
-    """
-    print(shares)
     
     ac_profit_loss     = ac_difference / ac_bought_price
     total_sold_price   = float( sell_shares.quantity ) * last_price
@@ -248,5 +247,5 @@ async def sell_shares( sell_shares   : SellShares,
 
 
     """
-        
+
     """
