@@ -8,7 +8,10 @@ from utils.helper_variables import time_zone
 from utils import exceptions
 import base64
 import uuid
-import json
+import yaml
+
+def dict_format(val):
+    return yaml.load(val, Loader=yaml.FullLoader)
 
 def create_nasdaq_stock_if_not_exists(data, db):
     stocks_model = db.query(models.NasdaqStocks)\
@@ -77,6 +80,41 @@ def create_list_of_shares( data, user_id, x ):
     }
 
 
+
+def create_lot( data, user_id, qty ):
+    date_time_now=datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%f")
+    pending = True
+    if data['marketStatus'] != "Market Closed":
+        pending = False
+    last_price = data['primaryData']['lastSalePrice'][1:]
+    id = uuid.uuid5(uuid.NAMESPACE_DNS, f'{qty}{user_id}{date_time_now}'
+    )
+    return {
+        'uuid'         : str(id),
+        'bought_date'  : date_time_now,
+        'bought_price' : last_price,
+        'quantity'     : qty,
+        'pending'      : pending
+    }
+
+
+def create_sell( data, user_id, qty, lots ):
+    date_time_now=datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%f")
+    pending = True
+    if data['marketStatus'] != "Market Closed":
+        pending = False
+    last_price = data['primaryData']['lastSalePrice'][1:]
+    id = uuid.uuid5(uuid.NAMESPACE_DNS, f'{qty}{user_id}{date_time_now}'
+    )
+    return {
+        'uuid'         : str(id),
+        'sell_date'    : date_time_now,
+        'sell_price'   : last_price,
+        'quantity'     : qty,
+        'pending'      : pending
+    }
+
+
 def get_num_held_shares( shares_list ):
     num_shares_held = 0
     num_shares_held_pending = 0
@@ -88,3 +126,10 @@ def get_num_held_shares( shares_list ):
                 has_pending = True
                 num_shares_held_pending += 1
     return num_shares_held, has_pending
+
+
+def num_to_money( num ):
+    num = float( num )
+    if num < 0:
+        return f'-$'+'{:,}'.format( num * -1 )
+    return f'$'+'{:,}'.format( num )

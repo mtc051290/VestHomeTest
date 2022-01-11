@@ -3,6 +3,10 @@ sys.path.append("..")
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+import aiomysql
+import asyncio
+from sqlalchemy.pool import QueuePool
+
 
 # Connect to Heroku MySQL 
 db_user     = "bccf25ad9ef0b8"
@@ -18,6 +22,12 @@ engine = create_engine( SQLALCHEMY_DATABASE_URL,
                         connect_args  = { 'connect_timeout' : 120 }, 
                         pool_pre_ping = True )
 
+sql_pool = create_engine( SQLALCHEMY_DATABASE_URL, 
+                        connect_args  = { 'connect_timeout' : 120 }, 
+                        pool_size = 30, max_overflow = 0 )
+
+pool_conn = sql_pool.connect()
+
 SessionLocal = sessionmaker( autocommit  = False, 
                              autoflush   = False, 
                              bind=engine )
@@ -30,3 +40,15 @@ def get_db():
         yield db
     finally: 
         db.close()
+
+def get_new_db():
+    pool_session= sessionmaker( autocommit  = False, 
+                             autoflush   = False, 
+                             bind=pool_conn )
+    try:
+        db=pool_session()
+        yield db
+    finally: 
+        db.close()
+
+

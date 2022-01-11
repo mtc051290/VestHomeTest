@@ -1,9 +1,10 @@
 import sys
 sys.path.append("..")
-from sqlalchemy import Boolean,Column,Integer,String, ForeignKey, Sequence
-from sqlalchemy.sql.sqltypes import DateTime, Float
+from sqlalchemy import Boolean,Column,Integer,String, ForeignKey, PickleType, TEXT
+from sqlalchemy.sql.sqltypes import DateTime, Float, JSON
 from sqlalchemy.orm import relationship
 from utils.database import Base
+from sqlalchemy.ext.mutable import MutableList
 
 
 class VestUsers(Base):
@@ -21,18 +22,21 @@ class VestUsers(Base):
 
 class UserStocks(Base):
     # Stocks with shares held by users
-    __tablename__    = "user_stocks"
-    id               = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    owner_id         = Column(Integer, ForeignKey("vest_users.id"))
-    nasdaq_stock_id  = Column(Integer, ForeignKey("nasdaq_stocks.id"))
-    company          = Column(String)
-    symbol           = Column(String)
-    created_date     = Column(DateTime)
-    shares           = Column(String)
-    num_held_shares  = Column(Integer)
-    has_pending      = Column(Integer, default=0)
-    owner            = relationship("VestUsers", back_populates="user_stocks")
-    nasdaq           = relationship("NasdaqStocks", back_populates="user_stocks")
+    __tablename__      = "user_stocks"
+    id                 = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    owner_id           = Column(Integer, ForeignKey("vest_users.id"))
+    nasdaq_stock_id    = Column(Integer, ForeignKey("nasdaq_stocks.id"))
+    company            = Column(String)
+    symbol             = Column(String)
+    created_date       = Column(DateTime)
+    lots               = Column(TEXT)
+    sells              = Column(TEXT)
+    num_held_shares    = Column(Integer)
+    held_paid_shares  = Column(Float(precision=32, decimal_return_scale=None))
+    delta              = Column(Float(precision=32, decimal_return_scale=None))
+    has_pending        = Column(Integer, default=0)
+    owner              = relationship("VestUsers", back_populates="user_stocks")
+    nasdaq             = relationship("NasdaqStocks", back_populates="user_stocks")
 
 
 class NasdaqStocks(Base): 
