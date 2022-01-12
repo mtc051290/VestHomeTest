@@ -257,7 +257,7 @@ async def sell_shares( sell_shares   : SellShares,
 
 ###################### LIST STOCKS ######################
 @router.post("/stocks", status_code = status.HTTP_201_CREATED)
-async def stock_list( 
+async def stock_list( get_stocks        : GetStocks,
                       user              :  dict = Depends( get_current_user ),
                       db                :  Session = Depends( get_db )
                     ):
