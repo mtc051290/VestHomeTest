@@ -1,5 +1,10 @@
 from fastapi import Depends, HTTPException, status
 
+"""
+Welcome to the exception pool,
+their names explain then very well
+"""
+
 def negative_number_exception():
     exception_response = HTTPException(
         status_code = status.HTTP_400_BAD_REQUEST,

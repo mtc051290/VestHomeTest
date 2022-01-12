@@ -1,6 +1,10 @@
 from datetime import datetime
 from pytz import timezone
 
+"""
+Used for gatting data from Yahoo Finance
+* It will probably be used in the future
+"""
 
 def get_today_datetime_variations():
     now = datetime.now(timezone('EST'))

@@ -1,11 +1,13 @@
 import sys
 sys.path.append("..")
-from sqlalchemy import Boolean,Column,Integer,String, ForeignKey, PickleType, TEXT
+from sqlalchemy import Boolean,Column,Integer,String, ForeignKey, TEXT
 from sqlalchemy.sql.sqltypes import DateTime, Float, JSON
 from sqlalchemy.orm import relationship
 from utils.database import Base
-from sqlalchemy.ext.mutable import MutableList
 
+"""
+Entities for the database
+"""
 
 class VestUsers(Base):
     # User table
@@ -55,6 +57,7 @@ class NasdaqStocks(Base):
 
 
 class PriceChanges(Base):
+    # Intended for cron jobs
     __tablename__    = "price_changes"
     id               = Column(Integer, primary_key=True, index=True)
     nasdaq_stock_id  = Column(Integer, ForeignKey("nasdaq_stocks.id"))

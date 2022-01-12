@@ -20,7 +20,9 @@ from fastapi.templating import Jinja2Templates
 
 
 
-
+"""
+Never used
+"""
 
 
 templates=Jinja2Templates(directory="templates")

@@ -3,11 +3,14 @@ sys.path.append("..")
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-import aiomysql
-import asyncio
 from sqlalchemy.pool import QueuePool
 
+"""
+This should not be in GitHub
 
+
+Using MySQLAlchemy as a ORM for MySQL
+"""
 # Connect to Heroku MySQL 
 db_user     = "bccf25ad9ef0b8"
 db_pass     = "19d1cdea"
@@ -34,6 +37,7 @@ SessionLocal = sessionmaker( autocommit  = False,
 
 Base = declarative_base()
 
+# Creates a session for database connections
 def get_db():
     try:
         db=SessionLocal()
@@ -43,8 +47,8 @@ def get_db():
 
 def get_new_db():
     pool_session= sessionmaker( autocommit  = False, 
-                             autoflush   = False, 
-                             bind=pool_conn )
+                                autoflush   = False, 
+                                bind=pool_conn )
     try:
         db=pool_session()
         yield db

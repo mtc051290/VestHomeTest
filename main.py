@@ -10,8 +10,10 @@ description =   """
                 Testing in real time...
                 """
 
+# Generate tables
 models.Base.metadata.create_all(bind=engine)
 
+# Defines an exception for bad request
 class BadRequestData(Exception):
     def __init__(self, books_to_return):
         self.books_to_return = books_to_return
@@ -26,14 +28,14 @@ def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
     openapi_schema =  get_openapi(
-        title      =  "Vest | Senior Backend Engineer - Take Home Test",
+        title      =  "Vest | Backend Engineer - Take Home Test",
         version    =  "1.1",
         contact    =  {
             "name"    :  "ISDR Miguel Jesús Torres Cárdenas",
             "GitHub"  :  "https://github.com/mtc051290/VestTestApp",
             "email"   :  "mtc590@gmail.com",
         },
-        description = "Making changes for Open Market hours",
+        description = "API developed with FastAPI, MySQL and authentication tools for a trading application",
         routes = app.routes,
     )
     openapi_schema["info"]["x-logo"] = {

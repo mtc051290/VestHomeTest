@@ -3,15 +3,24 @@ import sys
 sys.path.append("..")
 from models import models
 from datetime import datetime
-from utils.helper_variables import time_zone
+from utils.helper_variables import time_zone, hack_headers
 from utils import exceptions
 import uuid
 import yaml
+import requests
+
+"""
+General Methods
+"""
 
 def dict_format(val):
     return yaml.load(val, Loader=yaml.FullLoader)
 
 def create_nasdaq_stock_if_not_exists(data, db):
+    """
+    Verify if user owns a stock from this company
+    Create a new one with purchase information
+    """
     stocks_model = db.query(models.NasdaqStocks)\
         .filter(models.NasdaqStocks.symbol == data['symbol']).first()
     if stocks_model is None:
@@ -34,7 +43,11 @@ def create_nasdaq_stock_if_not_exists(data, db):
         .filter(models.NasdaqStocks.symbol == data['symbol']).first()
     return stocks_model.id
 
+
 def add_shares_to_user_stocks(data, user_model, db):
+    """
+    Add a LOT to the user's instance
+    """
     stocks_model = db.query(models.NasdaqStocks)\
         .filter(models.NasdaqStocks.symbol == data['symbol']).first()
     if stocks_model is None:
@@ -53,6 +66,9 @@ def add_shares_to_user_stocks(data, user_model, db):
 
 
 def create_list_of_shares( data, user_id, x ):
+    """
+    Used before creating LOTS
+    """
     date_time_now=datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%f")
     pending = True
     if data['marketStatus'] != "Market Closed":
@@ -164,6 +180,11 @@ def create_sell( data, user_id, qty, lots ):
 
 
 def get_num_held_shares( shares_list ):
+    """
+    Get the current shares holding by the user, 
+    if the market is open and there is something
+    pending, just change the status
+    """
     num_shares_held = 0
     num_shares_held_pending = 0
     has_pending = False
@@ -174,7 +195,6 @@ def get_num_held_shares( shares_list ):
                 has_pending = True
                 num_shares_held_pending += 1
     return num_shares_held, has_pending
-
 
 def num_to_money( num ):
     num = float( num )
@@ -189,8 +209,42 @@ def change_pending_status( el, pending ):
             x['pending'] = False
     return el
 
+def get_hour_from_string(date):
+    hour_split = date.split(" ")
+    hour_lot = int(hour_split[1][:2])
+    return hour_lot
 
 
+def get_nasdaq_chart_from_today( symbol ):
+    """
+    Verify the Nasdaq realtime chart to get prices from different hours
+    """
+    my_params = { 'assetclass' : 'stocks' }
+    url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/chart"
+    try:
+        response = requests.get( url_quote_info, 
+                            params=my_params, 
+                            headers = hack_headers, 
+                            timeout=15 )
+    except:
+        raise exceptions.nasdaq_api_exception
+
+    data   = response.json()['data']
+    status = response.json()['status']
+
+    # Throw an error if symbol does not exist or could not get data from api
+    if status['rCode'] == 400:
+        raise exceptions.symbol_exception()
+    if status['rCode'] != 200:
+        raise exceptions.nasdaq_api_exception()
+
+    # Parse for date to ensure that is today's value
+    date_time_now=datetime.now(time_zone).strftime("%b %-d")
+    hoy_nasdaq = data['timeAsOf']
+    mes_dia_anio = hoy_nasdaq.split(",")
+    if mes_dia_anio[0] == date_time_now:
+        return data['chart']
+    return False
 
 
 

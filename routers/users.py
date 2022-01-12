@@ -8,7 +8,6 @@ from fastapi import Depends, HTTPException, status, APIRouter, Request, Response
 from pydantic import BaseModel
 from typing import Optional
 from models import models, users
-from controllers.users_functions import validate_new_user
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 from utils.database import SessionLocal, engine
@@ -23,12 +22,9 @@ from controllers.auth import get_password_hash, verify_password, authenticate_us
 from controllers.auth import SECRET_KEY, ALGORITHM
 
 
-
-
-
-
-# This creates all the tables and columns
-#models.Base.metadata.create_all(bind=engine)
+"""
+SECURITY FIRST, so I've implemented OAuth2 authentication and JWT
+"""
 
 # This gets all the authorization data from headers
 oauth2_bearer=OAuth2PasswordBearer(tokenUrl="token")
@@ -44,14 +40,7 @@ router = APIRouter(
 )
 
 
-
-
-
-
-
-
-
-
+# Get user with the token 
 async def get_current_user(token: str = Depends(oauth2_bearer)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -65,41 +54,36 @@ async def get_current_user(token: str = Depends(oauth2_bearer)):
 
 
 
-
-
-# Not used in fullStack
+# Create a new user
 @router.post("/create/user", response_model=users.CreatedUser, status_code=status.HTTP_201_CREATED)
 async def create_new_user(create_user: users.CreateUser,db: Session=Depends(get_db)):
+    """
+    When creating a new user it is required to make a request to "users / token"\n
+    to obtain a new token and to be able to interact with the backend with a new user
+    """
     try:
-        if validate_new_user():
-            created_user=create_user
-            create_user_model=models.VestUsers()
-            create_user_model.email=create_user.email
-            create_user_model.username=create_user.username
-            create_user_model.first_name=create_user.first_name
-            create_user_model.last_name=create_user.last_name
-            hash_password = get_password_hash(create_user.password)
-            create_user_model.hashed_password=hash_password
-            create_user_model.is_active=True
-            db.add(create_user_model)
-            db.commit()
-            return  created_user
+        created_user=create_user
+        create_user_model=models.VestUsers()
+        create_user_model.email=create_user.email
+        create_user_model.username=create_user.username
+        create_user_model.first_name=create_user.first_name
+        create_user_model.last_name=create_user.last_name
+        hash_password = get_password_hash(create_user.password)
+        create_user_model.hashed_password=hash_password
+        create_user_model.is_active=True
+        db.add(create_user_model)
+        db.commit()
+        return  created_user
     except:
         raise exceptions.bad_user_create_request_exception()
 
-
-
-
-
-
-
-
-
-
-#eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtdGM1OTAiLCJpZCI6MTQsImV4cCI6MTY0Nzg1NDQxM30.GTobMEQn1rSDNGQHccai2nE7aHZfblJ8LK66YHV5OrA
+# Login to get a new token
 @router.post("/token")
 async def login_for_access_token(user_to_login: users.LoginTokenUser,
                                 db: Session = Depends(get_db)):
+    """
+    Create a new JWT token, the token is required for all requests
+    """
     user = authenticate_user(user_to_login.username, user_to_login.password, db)
     if not user:
         raise token_exception()
@@ -110,24 +94,7 @@ async def login_for_access_token(user_to_login: users.LoginTokenUser,
                                 expires_delta=token_expires)
     return {"token": token}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# If the user tries to use a non valid token
 def get_user_exception():
     credential_exception=HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -136,7 +103,7 @@ def get_user_exception():
     )
     return credential_exception
 
-
+# Also for user authentication
 def token_exception():
     token_exception=HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -145,6 +112,7 @@ def token_exception():
     )
     return token_exception
 
+# If the user puts something wrong in the request
 def bad_user_create_request_exception():
     exception_response=HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,

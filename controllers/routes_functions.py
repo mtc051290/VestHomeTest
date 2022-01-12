@@ -10,9 +10,14 @@ from controllers.auth import get_current_user
 from controllers.trading_functions import num_to_money, dict_format
 from utils.helper_variables import hack_headers, time_zone
 
-
+"""
+These are methods used to interact with the Nasdaq api
+"""
 
 def get_price_nasdaq( symbol ):
+    """
+    Get the last price of a company from the Nasdaq API
+    """
     # Get stocks data from api.nasdaq
     my_params = { 'assetclass' : 'stocks' }
     url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/info"
@@ -36,8 +41,11 @@ def get_price_nasdaq( symbol ):
     return float( data['primaryData']['lastSalePrice'][1:] )
 
 
-# Not used
+
 def get_numbers_nasdaq( symbol ):
+    """
+    Get a summary for a specific company
+    """
     # Get stocks data from api.nasdaq
     url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/realtime-trades"
     try:
@@ -56,6 +64,7 @@ def get_numbers_nasdaq( symbol ):
     if status['rCode'] != 200:
         raise exceptions.nasdaq_api_exception()
     
+    # Parsing to get High and Low prices from the day
     high_low_raw = data['topTable']['rows'][0]['todayHighLow']
     high_low = high_low_raw.split("/")
     high = float( high_low[0][1:] )
@@ -65,6 +74,11 @@ def get_numbers_nasdaq( symbol ):
 
 
 def get_real_average_nasdaq( symbol ):
+    """
+    Since nasdaq does not report a daily average, it was necessary
+    to do an iteration process that evaluates the price changes issued
+    by Nasdaq and makes the calculations with said data.
+    """
     # Get stocks data from api.nasdaq
     my_params = { 'assetclass' : 'stocks' }
     url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/chart"
@@ -90,6 +104,8 @@ def get_real_average_nasdaq( symbol ):
     sum_prices = 0
     average = 0
     real_low = 0
+
+    # Iterate through chart, find the lowest, the highest and calculate values
     if data['chart'] is not None:
         real_low = float( data['chart'][0]['z']['value'] )
         for x in data['chart']:
@@ -105,6 +121,10 @@ def get_real_average_nasdaq( symbol ):
     else:
         msg = "Data not available at this moment, please wait until open market"
     
+    """
+    Double check for High/Low prices and return the Highest or the lowest
+    """
+
     # Get stocks data from api.nasdaq
     my_params_2 = { 'assetclass' : 'stocks' }
     url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/realtime-trades"

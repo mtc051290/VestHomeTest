@@ -5,22 +5,19 @@ import pandas as pd
 import yfinance as yf
 import cron_functions
 
+"""
+These functions get real-time data from Yahoo Finance and it was planned
+to create a cron job that gets the price changes. In the end, it was decided
+to make connections by user events and avoid consuming resources on the server.
 
-
-
-
+***** These functions need to be verified and corrected ******
+***** I leave the document here for a test branch ******
+"""
 
 def cron_get_prices(loading_success, name=""):
     start_time = time.time()
     print("\n\n")
-
-
-
-
-
-
     print(cron_functions.get_today_datetime_variations())
-
     """
     #time.sleep(6)
     print("\n\n")
@@ -33,11 +30,8 @@ def cron_get_prices(loading_success, name=""):
     
     print(d['AMD'].index[0])
     """
-    
-
     loading_success.value=True          #REMOVE THIS WHEN DONE
     print("\n\nResponse in %s seconds" % (time.time() - start_time))
-
 
 
 if __name__ == '__main__':
@@ -49,29 +43,19 @@ if __name__ == '__main__':
     tries=0
     while loading_success.value==False and tries<max_repeat:
 
-
         p = multiprocessing.Process(target=cron_get_prices, args=(loading_success,'loading_success'))
         p.start(); p.join(max_time)
-
 
         tries+=1
         if p.is_alive():
             print (f"running... let's kill it... {loading_success.value}")
             p.terminate(); p.kill(); p.join(); p.close()
 
-            
-
     if not loading_success.value:
         print("Could not get prices")
         # Functions for notificacion here
     else:
         print("Successfully executed")
-
-
-
-
-
-
 
 """
 
@@ -105,10 +89,6 @@ if __name__ == '__main__':
 
                 p.start()
                 p.join(max_time)
-
-
-
-
 
     p.terminate()
     p.kill()
