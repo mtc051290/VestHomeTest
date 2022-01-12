@@ -1,12 +1,10 @@
-
+from json import load
 import sys
-from models.models import UserStocks
 sys.path.append("..")
 from models import models
-from datetime import datetime, timedelta
+from datetime import datetime
 from utils.helper_variables import time_zone
 from utils import exceptions
-import base64
 import uuid
 import yaml
 
@@ -37,10 +35,6 @@ def create_nasdaq_stock_if_not_exists(data, db):
     return stocks_model.id
 
 def add_shares_to_user_stocks(data, user_model, db):
-    print(user_model)
-    print(data)
-
-
     stocks_model = db.query(models.NasdaqStocks)\
         .filter(models.NasdaqStocks.symbol == data['symbol']).first()
     if stocks_model is None:
@@ -82,37 +76,91 @@ def create_list_of_shares( data, user_id, x ):
 
 
 def create_lot( data, user_id, qty ):
+    """
+        Create and return a dictionary with de new LOT.
+        If market is closed, set 'pending' to True
+    """
     date_time_now=datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%f")
     pending = True
     if data['marketStatus'] != "Market Closed":
         pending = False
     last_price = data['primaryData']['lastSalePrice'][1:]
-    id = uuid.uuid5(uuid.NAMESPACE_DNS, f'{qty}{user_id}{date_time_now}'
-    )
+    id = uuid.uuid5(uuid.NAMESPACE_DNS, 
+                    f'{qty}{user_id}{date_time_now}')
+    total_paid = float( last_price) * int( qty )
     return {
-        'uuid'         : str(id),
-        'bought_date'  : date_time_now,
-        'bought_price' : last_price,
-        'quantity'     : qty,
-        'pending'      : pending
+        'uuid'          : str(id),
+        'bought_date'   : date_time_now,
+        'bought_price'  : last_price,
+        'quantity'      : qty,
+        'held_quantity' : qty,
+        'total_paid'    : total_paid,
+        'pending'       : pending
     }
 
 
 def create_sell( data, user_id, qty, lots ):
+    """
+        Iterate through lots to get the real
+        paid amount, change status of held shares in lots,
+        calculate difference $sold - $paid and get profit/loss
+        from this operation.
+        If market is closed, set 'pending' to True
+    """
     date_time_now=datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%f")
     pending = True
     if data['marketStatus'] != "Market Closed":
         pending = False
     last_price = data['primaryData']['lastSalePrice'][1:]
-    id = uuid.uuid5(uuid.NAMESPACE_DNS, f'{qty}{user_id}{date_time_now}'
-    )
-    return {
-        'uuid'         : str(id),
-        'sell_date'    : date_time_now,
-        'sell_price'   : last_price,
-        'quantity'     : qty,
-        'pending'      : pending
+    id = uuid.uuid5(uuid.NAMESPACE_DNS, 
+                    f'{qty}{user_id}{date_time_now}')
+
+    # For FIFO
+    lots.reverse()
+    
+    # Iterate through lots and set new data
+    i = 0
+    to_next_lot = 1
+    total_paid = 0
+    paid = 0
+    missing_sold = qty
+
+    while ( to_next_lot == 1 and i < len(lots)):
+        if lots[i]['held_quantity'] > 0:
+            if lots[i]['held_quantity'] < missing_sold:
+                to_next_lot = 1
+                qty_available = lots[i]['held_quantity']
+            elif lots[i]['held_quantity'] >= missing_sold:
+                qty_available = missing_sold
+                to_next_lot = 0
+            else:
+                qty_available = missing_sold
+            
+            paid = qty_available * float( lots[i]['bought_price'] )
+            total_paid += paid
+            lots[i]['held_quantity'] -= qty_available
+            missing_sold -= qty_available
+        i += 1
+
+    # DELTA = $selled - $paid
+    delta = ( float(last_price) * qty ) - total_paid 
+    profit_loss = delta / total_paid
+
+    id = uuid.uuid5( uuid.NAMESPACE_DNS, 
+                     f'{qty}{user_id}{date_time_now}' )
+    response = {
+        'uuid'          : str( id ),
+        'sold_date'     : date_time_now,
+        'sold_price'    : last_price,
+        'sold_total'    : round(float(last_price) * qty , 4) ,
+        'quantity'      : qty,
+        'total_paid'    : round( total_paid, 4 ),
+        'delta'         : round( delta,4 ),
+        'profit_loss'   : round( profit_loss, 4 ),
+        'pending'       : pending
     }
+    lots.reverse()
+    return response, lots
 
 
 def get_num_held_shares( shares_list ):
@@ -133,3 +181,17 @@ def num_to_money( num ):
     if num < 0:
         return f'-$'+'{:,}'.format( num * -1 )
     return f'$'+'{:,}'.format( num )
+
+def change_pending_status( el, pending ):
+    for x in el:
+        x['pending'] = True
+        if x['pending'] == True and pending == False:
+            x['pending'] = False
+    return el
+
+
+
+
+
+
+    

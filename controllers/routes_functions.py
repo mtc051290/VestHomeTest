@@ -51,7 +51,7 @@ async def buy_shares( user, buy_shares, db ):
         .first()
 
     create_lot_params =  data, user.get('id'), buy_shares.quantity 
-    shares_list = [ trading_functions.create_lot( data, user.get('id'), buy_shares.quantity ) ]
+    shares_list = [ trading_functions.create_lot( create_lot_params) ]
 
 
     print(shares_list)

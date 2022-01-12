@@ -1,21 +1,19 @@
 import sys
 from pydantic.fields import Field
 sys.path.append("..")
-from pydantic import BaseModel, validator
-from typing import Optional
-from utils import exceptions
-from pydantic.typing import display_as_type
-from starlette.responses import JSONResponse
+from pydantic import BaseModel
+from fastapi import Response
 
 
-
-
-"""
-    VALIDATORS
-"""
 def is_number(number: str):
     return True
 
+class ErrorResponse(Response, Exception):
+    message: str
+
+class NotFoundResponse(ErrorResponse):
+    def status_code(self) -> int:
+        return 404
 
 class CreateNasdaqStock(BaseModel):
     company             : str
@@ -25,13 +23,11 @@ class CreateNasdaqStock(BaseModel):
     day_price_highest   : float
     day_price_average   : float
 
-
 class BuyShares(BaseModel):
     quantity        : int = Field(1, gt=0, details="Must be grater than 0, no limits")
     company_symbol  : str = Field("AAPL", description="Upper o Lower cases")
     token           : str = Field("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtdGM1OTAiLCJpZCI6MTQsImV4cCI6MTY0Nzg1NDQxM30.GTobMEQn1rSDNGQHccai2nE7aHZfblJ8LK66YHV5OrA",
                 description="Token set for test user 'mtc590' with password 'test1234!'")
-
 
 class SellShares(BaseModel):
     quantity        : int = Field(1, gt=0, details="Must be grater than 0, no limits")
@@ -39,7 +35,9 @@ class SellShares(BaseModel):
     token           : str = Field("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtdGM1OTAiLCJpZCI6MTQsImV4cCI6MTY0Nzg1NDQxM30.GTobMEQn1rSDNGQHccai2nE7aHZfblJ8LK66YHV5OrA",
                 description="Token set for test user 'mtc590' with password 'test1234!'")
 
-
+class GetStocks(BaseModel):
+    token           : str = Field("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJtdGM1OTAiLCJpZCI6MTQsImV4cCI6MTY0Nzg1NDQxM30.GTobMEQn1rSDNGQHccai2nE7aHZfblJ8LK66YHV5OrA",
+                description="Token set for test user 'mtc590' with password 'test1234!'")
 
 class PurchaseSummary(BaseModel):
     date_time_purchase       : str
@@ -53,21 +51,17 @@ class PurchaseSummary(BaseModel):
     pending                  : bool
     message                  : str
 
-
 class SaleSummary(BaseModel):
     date_time_sold           : str
     company                  : str
     symbol                   : str
     total_sold_shares        : int 
     unitary_sold_price       : str
-    total_sold_price         : str 
-    total_bought_price       : str
+    total_sold_amount        : str 
+    total_bought_amount      : str
     difference               : str
     profit_loss              : str
     is_real_time             : bool 
     market_status            : str
     pending                  : bool
     message                  : str
-
-
-

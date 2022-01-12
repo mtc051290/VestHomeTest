@@ -1,16 +1,10 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI
 import models.users
 from models import models
 from utils.database import engine
 from routers import users, trading
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import PlainTextResponse
-from fastapi import Depends, HTTPException, status, Request
-from starlette.responses import JSONResponse
 from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
-
-
 
 description =   """
                 Testing in real time...
@@ -21,7 +15,6 @@ models.Base.metadata.create_all(bind=engine)
 class BadRequestData(Exception):
     def __init__(self, books_to_return):
         self.books_to_return = books_to_return
-
 
 app = FastAPI()
 
