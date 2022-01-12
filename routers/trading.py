@@ -15,9 +15,8 @@ from datetime import datetime
 from controllers.auth import get_current_user
 from controllers import trading_functions
 from controllers.trading_functions import num_to_money, dict_format
-from utils.helper_variables import hack_headers, time_zone
+from utils.helper_variables import hack_headers, time_zone 
 from controllers import routes_functions
- 
 
 router = APIRouter(
     prefix    = "/trading",
@@ -54,7 +53,7 @@ async def buy_shares( buy_shares  :  BuyShares,
         response = requests.get( url_quote_info, 
                             params=my_params, 
                             headers = hack_headers, 
-                            timeout=7 )
+                            timeout=15 )
     except:
         raise exceptions.nasdaq_api_exception
 
@@ -175,9 +174,9 @@ async def sell_shares( sell_shares   : SellShares,
         response = requests.get( url_quote_info, 
                             params=my_params, 
                             headers=hack_headers, 
-                            timeout=10 )
-    except:
-        raise exceptions.nasdaq_api_exception
+                            timeout=15 )
+    except BaseException as e:
+        raise BaseException("Service Failure", e, e.args)
 
     data   = response.json()['data']
     status = response.json()['status']
@@ -258,7 +257,7 @@ async def sell_shares( sell_shares   : SellShares,
 
 ###################### LIST STOCKS ######################
 @router.post("/stocks", status_code = status.HTTP_201_CREATED)
-async def buy_shares( get_stocks_model  :  GetStocks,
+async def stock_list( 
                       user              :  dict = Depends( get_current_user ),
                       db                :  Session = Depends( get_db )
                     ):
@@ -278,106 +277,27 @@ async def buy_shares( get_stocks_model  :  GetStocks,
 
     stocks_response = []
     for stock in user_stocks:
-        last_price = get_price_nasdaq( stock.symbol )
-        get_real_numbers_nasdaq( stock.symbol )
+        last_price = routes_functions.get_price_nasdaq( stock.symbol )
+        final_high, final_low, average, msg = routes_functions.get_real_average_nasdaq( stock.symbol )
         shares_current_value = stock.num_held_shares * last_price
+        profit_loss = stock.delta + shares_current_value - stock.held_paid_shares
+        profit_loss = profit_loss / stock.total_paid_shares * 100
+        profit_loss = round( profit_loss,4 )
         stock_element = {
             'company'               : stock.company,
             'symbol'                : stock.symbol,
             'last_price'            : num_to_money( last_price ),
             'held_shares'           : str( stock.num_held_shares),
-            'shares_current_value'  : num_to_money( round(shares_current_value, 4) ),
-            'today_lowest_price'    : "",
-            'today_highest_price'   : "",
-            'today_average_price'   : "",
-            'profit_loss'           : ""
+            'shares_current_value'  : num_to_money( round( shares_current_value, 4) ),
+            'today_lowest_price'    : num_to_money( round( final_low, 4) ),
+            'today_highest_price'   : num_to_money( round( final_high, 4) ),
+            'today_average_price'   : num_to_money( round( average, 4) ),
+            'profit_loss'           : f'{profit_loss}%'
         }
         for_list_stock = [ stock_element ]
         stocks_response.extend( for_list_stock )
 
-        #print(stock.company)
-    
-    #print(stocks_response)
     return stocks_response
 
-
-def get_price_nasdaq( symbol ):
-    # Get stocks data from api.nasdaq
-    my_params = { 'assetclass' : 'stocks' }
-    url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/info"
-    try:
-        response = requests.get( url_quote_info, 
-                            params=my_params, 
-                            headers=hack_headers, 
-                            timeout=10 )
-    except:
-        raise exceptions.nasdaq_api_exception
-
-    data   = response.json()['data']
-    status = response.json()['status']
-
-    # Throw an error if symbol not exists or could not get data from api
-    if status['rCode'] == 400:
-        raise exceptions.symbol_exception()
-    if status['rCode'] != 200:
-        raise exceptions.nasdaq_api_exception()
-    
-    return float( data['primaryData']['lastSalePrice'][1:] )
-
-# Not used
-def get_numbers_nasdaq( symbol ):
-    # Get stocks data from api.nasdaq
-    url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/realtime-trades"
-    try:
-        response = requests.get( url_quote_info, 
-                            headers=hack_headers, 
-                            timeout=10 )
-    except:
-        raise exceptions.nasdaq_api_exception
-
-    data   = response.json()['data']
-    status = response.json()['status']
-
-    # Throw an error if symbol not exists or could not get data from api
-    if status['rCode'] == 400:
-        raise exceptions.symbol_exception()
-    if status['rCode'] != 200:
-        raise exceptions.nasdaq_api_exception()
-    
-    high_low_raw = data['topTable']['rows'][0]['todayHighLow']
-    high_low = high_low_raw.split("/")
-    high = float( high_low[0][1:] )
-    low = float( high_low[1][1:] )
-    print( f' {high} and {low}' )
-
-
-
-def get_real_numbers_nasdaq( symbol ):
-    # Get stocks data from api.nasdaq
-    my_params = { 'assetclass' : 'stocks' }
-    url_quote_info = f"https://api.nasdaq.com/api/quote/{symbol}/chart"
-    try:
-        response = requests.get( url_quote_info, 
-                            params=my_params, 
-                            headers=hack_headers, 
-                            timeout=10 )
-    except:
-        raise exceptions.nasdaq_api_exception
-
-    data   = response.json()['data']
-    status = response.json()['status']
-
-    # Throw an error if symbol not exists or could not get data from api
-    if status['rCode'] == 400:
-        raise exceptions.symbol_exception()
-    if status['rCode'] != 200:
-        raise exceptions.nasdaq_api_exception()
-    
-    print( data['chart'][0] )
-
-
-
-
-    print( f'Hallo' )
 
 
