@@ -90,4 +90,5 @@ Manual Installation
 
 [API Documentation](https://vest-backend-test.herokuapp.com/redoc#operation/login_for_access_token_users_token_post)
 
+This Document details the characteristics of the endpoints, their operation and the requirements to make requests
 Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the project was uploaded to Heroku in order to show documentation
