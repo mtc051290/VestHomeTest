@@ -96,9 +96,16 @@ This Document details the characteristics of the endpoints, their operation and 
 Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the project was uploaded to Heroku in order to show documentation
 
 
+
+
+## Scope of the project
+
+- Build a threaded microservice to listen price changes in real time from different sources
+- Integrate a load balancer for faster calculations without compromising server performance
+- Implement unit test to guarantee the correct functioning of the system
+- More and more calculations 🚀 
+
 ## Contact
 
 **Email:** mtc590@gmail.com
 **Phone:** +52 55 39 11 54 81
-
-🚀 
