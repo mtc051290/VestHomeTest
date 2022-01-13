@@ -1,6 +1,6 @@
 from calendar import day_abbr
 import sys
-from VestApp.models.stocks import GetStocksHours
+from models.stocks import GetStocksHours
 sys.path.append("..")
 from sqlalchemy.sql.expression import false, null, true
 from models.stocks import BuyShares, PurchaseSummary, SaleSummary, SellShares, GetStocks
