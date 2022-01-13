@@ -1,0 +1,95 @@
+DROP TABLE IF EXISTS `vest_users`;
+
+    CREATE TABLE `vest_users` (
+        `id` int(15) NOT NULL AUTO_INCREMENT,
+        `email` varchar(200) DEFAULT NULL,
+        `username` varchar(45) DEFAULT NULL,
+        `first_name` varchar(45) DEFAULT NULL,
+        `last_name` varchar(45) DEFAULT NULL,
+        `hashed_password` varchar(200) DEFAULT NULL,
+        `is_active` int(1) DEFAULT NULL,
+        PRIMARY KEY(`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `nasdaq_stocks`;
+
+    CREATE TABLE `nasdaq_stocks` (
+        `id` int(15) NOT NULL AUTO_INCREMENT,
+        `company` varchar(200) DEFAULT NULL,
+        `symbol` varchar(200) DEFAULT NULL,
+        `created_date` DATETIME DEFAULT NULL,
+        `day_price_lowest` float(15,8) DEFAULT NULL,
+        `day_price_highest` float(15,8) DEFAULT NULL,
+        `day_price_average` float(15,8) DEFAULT NULL,
+        PRIMARY KEY(`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `user_stocks`;
+
+    CREATE TABLE `user_stocks` (
+        `id` int(15) NOT NULL AUTO_INCREMENT,
+        `owner_id` int(15) DEFAULT NULL,
+        `nasdaq_stock_id` int(15) DEFAULT NULL,
+        `company` varchar(200) DEFAULT NULL,
+        `symbol` varchar(200) DEFAULT NULL,
+        `created_date` DATETIME DEFAULT NULL,
+        `lots` LONGTEXT DEFAULT NULL,
+        `sells` LONGTEXT DEFAULT NULL,
+        `num_held_shares` int(20) DEFAULT NULL,
+        `held_paid_shares` double(20,6) DEFAULT NULL,
+        `total_paid_shares` double(20,6) DEFAULT NULL,
+        `delta` double(20,6) DEFAULT NULL,
+        `has_pending` int(1) DEFAULT NULL,
+        PRIMARY KEY(`id`),
+        FOREIGN KEY (`owner_id`) REFERENCES vest_users(`id`),
+        FOREIGN KEY (`nasdaq_stock_id`) REFERENCES nasdaq_stocks(`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `price_changes`;
+
+    CREATE TABLE `price_changes` (
+        `id` int(15) NOT NULL AUTO_INCREMENT,
+        `nasdaq_stock_id` int(15) DEFAULT NULL,
+        `change_date` DATETIME DEFAULT NULL,
+        `symbol` varchar(200) DEFAULT NULL,
+        `price` float(15,8) DEFAULT NULL,
+        PRIMARY KEY(`id`),
+        FOREIGN KEY (`nasdaq_stock_id`) REFERENCES nasdaq_stocks(`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `todos`;
+
+    CREATE TABLE `todos` (
+        `id` int(15) NOT NULL AUTO_INCREMENT,
+        `title` varchar(200) DEFAULT NULL,
+        `description` varchar(200) DEFAULT NULL,
+        `priority` int(1) DEFAULT NULL,
+        `complete` int(1) DEFAULT NULL,
+        `owner_id` int(11) DEFAULT NULL,
+        PRIMARY KEY(`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+
+
+
+
+
+
+
+https://stackoverflow.com/questions/38280094/python-requests-with-multithreading
+
+https://www.reddit.com/r/PowerShell/comments/mvpy1u/invokerestmethod_disposing_of_connections_hanging/
+
+https://github.com/bounswe/bounswe2019group8/blob/master/practice-app/backend/flaskr/trading_equipments.py
+
+https://github.com/bounswe/bounswe2019group8/pull/318/files#
+
+https://github.com/bounswe/bounswe2019group8/
+
+
+
+
+s2J_UsXUEjQSyG9puxHv
+
+
+https://api.nasdaq.com/api/quote/AAPL/summary?assetclass=stocks
