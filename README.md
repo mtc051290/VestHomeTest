@@ -108,4 +108,5 @@ Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the proj
 ## Contact
 
 **Email:** mtc590@gmail.com
+
 **Phone:** +52 55 39 11 54 81
