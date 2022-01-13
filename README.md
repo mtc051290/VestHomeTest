@@ -83,6 +83,8 @@ Manual Installation
   pip install bcrypt
 ```
 
+Open http://localhost:8000/docs on your browser
+
 
 
 
@@ -92,3 +94,11 @@ Manual Installation
 
 This Document details the characteristics of the endpoints, their operation and the requirements to make requests
 Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the project was uploaded to Heroku in order to show documentation
+
+
+## Contact
+
+**Email:** mtc590@gmail.com
+**Phone:** +52 55 39 11 54 81
+
+🚀 
