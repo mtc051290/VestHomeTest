@@ -301,7 +301,7 @@ async def stock_list( get_stocks        : GetStocks,
             'company'               : stock.company,
             'symbol'                : stock.symbol,
             'last_price'            : num_to_money( last_price ),
-            'held_shares'           : str( stock.num_held_shares),
+            'held_shares'           : stock.num_held_shares,
             'shares_current_value'  : num_to_money( round( shares_current_value, 4) ),
             'today_lowest_price'    : num_to_money( round( final_low, 4) ),
             'today_highest_price'   : num_to_money( round( final_high, 4) ),
@@ -360,7 +360,7 @@ async def list_by_hour( get_stocks        : GetStocksHours,
         .filter( models.UserStocks.owner_id == user.get( 'id' ))\
         .filter( models.UserStocks.symbol == data[ 'symbol' ])\
         .first()
-
+    
     if user_stocks is None:
         raise exceptions.not_available_stock()
 
@@ -368,7 +368,7 @@ async def list_by_hour( get_stocks        : GetStocksHours,
     chart = trading_functions.get_nasdaq_chart_from_today( data['symbol'] )
     if chart == False:
         raise exceptions.nasdaq_api_exception()
-
+    
     lots_list = dict_format(user_stocks.lots)
     sell_list = dict_format(user_stocks.sells)
     pre_hour = datetime.now(time_zone).strftime("%Y-%m-%d %H:%M:%f")

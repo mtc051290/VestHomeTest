@@ -202,6 +202,11 @@ def num_to_money( num ):
         return f'-$'+'{:,}'.format( num * -1 )
     return f'$'+'{:,}'.format( num )
 
+def num_to_string( num ):
+    if num < 0:
+        return f''+'{:,}'.format( num * -1 )
+    return f''+'{:,}'.format( num )
+
 def change_pending_status( el, pending ):
     for x in el:
         x['pending'] = True
@@ -225,10 +230,9 @@ def get_nasdaq_chart_from_today( symbol ):
         response = requests.get( url_quote_info, 
                             params=my_params, 
                             headers = hack_headers, 
-                            timeout=15 )
+                            timeout=45 )
     except:
         raise exceptions.nasdaq_api_exception
-
     data   = response.json()['data']
     status = response.json()['status']
 
@@ -237,9 +241,8 @@ def get_nasdaq_chart_from_today( symbol ):
         raise exceptions.symbol_exception()
     if status['rCode'] != 200:
         raise exceptions.nasdaq_api_exception()
-
     # Parse for date to ensure that is today's value
-    date_time_now=datetime.now(time_zone).strftime("%b %-d")
+    date_time_now=datetime.now(time_zone).strftime("%b %d")
     hoy_nasdaq = data['timeAsOf']
     mes_dia_anio = hoy_nasdaq.split(",")
     if mes_dia_anio[0] == date_time_now:
