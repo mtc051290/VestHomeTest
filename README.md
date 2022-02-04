@@ -1,10 +1,13 @@
 
 # Vest | Backend Engineer - Take Home Test
 
-API developed with FastAPI, MySQL and authentication tools for a trading application
-
 Miguel Jesús Torres Cárdenas - 
 _Digital Systems and Robotics Engineer_ 
+
+\n
+
+API developed with FastAPI, MySQL and authentication tools for a trading application.
+
 
 
 For this challenge I have decided to take the many advantages of FastAPI, which is a modern, high-performance web framework, to develop an API service for a virtual trading environment where a user can buy/sell stocks, hold stocks and track portfolio performance.
