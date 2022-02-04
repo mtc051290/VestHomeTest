@@ -16,6 +16,15 @@ The main challenge in this test was to create the ability to buy and sell large 
 Another great challenge was obtaining the Nasdaq endpoints, since since October 2021 the API changed and authentication is required to be able to make requests.
 
 At the beginning, it was planned to create cron jobs to communicate continuously to the Nasdaq API, however the problem was solved in another way and without compromising application resources, it is still recommended to develop this type of systems as microservices
+
+## Links
+
+[API Documentation](https://vest-backend-test.herokuapp.com/redoc)
+
+This Document details the characteristics of the endpoints, their operation and the requirements to make requests
+Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the project was uploaded to Heroku in order to show documentation
+
+
 ## Features
 
 - JWT Tokens
@@ -84,19 +93,6 @@ Manual Installation
 ```
 
 Open http://localhost:8000/docs on your browser
-
-
-
-
-## Links
-
-[API Documentation](https://vest-backend-test.herokuapp.com/redoc)
-
-This Document details the characteristics of the endpoints, their operation and the requirements to make requests
-Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the project was uploaded to Heroku in order to show documentation
-
-
-
 
 ## Scope of the project
 
