@@ -4,7 +4,7 @@
 Miguel Jesús Torres Cárdenas - 
 _Digital Systems and Robotics Engineer_ 
 
-\n
+
 
 API developed with FastAPI, MySQL and authentication tools for a trading application.
 
