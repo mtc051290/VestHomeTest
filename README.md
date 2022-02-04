@@ -58,7 +58,7 @@ Nasdaq API blocks Heroku requests and unprotected AWS EC2 instances, so the proj
 Clone the project
 
 ```bash
-  git clone https://github.com/mtc051290/VestTestApp.git
+  git clone https://github.com/mtc051290/VestHomeTest.git
 ```
 
 Go to the project directory
